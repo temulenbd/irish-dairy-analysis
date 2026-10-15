@@ -1,6 +1,6 @@
 # SQL: the `dairy` database
 
-This folder holds the SQL scripts for the `dairy` database in SQL Server. The database stores the clean monthly dairy data from `notebook 1`, so it can be queried with SQL and connected to Power BI.
+This folder holds the SQL scripts for the `dairy` database in SQL Server. The database stores the clean monthly dairy data from notebook 1, so it can be queried with SQL and connected to Power BI.
 
 ## Files
 
@@ -10,6 +10,7 @@ The scripts are numbered in the order they are run.
 |---|---|
 | `00_create_database.sql` | Creates the `dairy` database |
 | `01_create_tables.sql` | Creates the three tables: `dim_date`, `dim_measure` and `fact_monthly` |
+| `02_analysis_queries.sql` | Analysis queries: yearly milk intake, year-on-year change, monthly pattern, quota periods, Ireland vs Canada |
 
 The tables are filled from Python in `notebooks/2_sql_database.ipynb`.
 
