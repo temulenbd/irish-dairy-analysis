@@ -23,17 +23,19 @@ Sources: [Agriland (2015)](https://www.agriland.co.uk/farming-news/end-of-milk-q
 ## Key findings
 | # | Finding | Evidence |
 |---|---|---|
-| 1 | **Quotas held supply flat.** From 1985 to 2015, intake grew by about 0.4% a year, not significantly different from zero. After quotas ended, growth was about 5 percentage points a year faster. Intake rose 56.4% from 2014 to 2025. | Segmented trend on log yearly intake, Newey–West standard errors: change in growth 95% interval 3.3 to 7.4 pp a year. The same result with the bend moved to 2013. |
+| 1 | **Quotas held supply flat, and fast growth followed when they ended.** From 1985 to 2014, intake grew by about 0.1% a year. From 2014 to 2022 it grew by about 5.7% a year, and it has not grown since 2022. Intake in 2025 was 56.4% above 2014. | Compound growth rates by period. Segmented trend on log yearly intake, Newey–West standard errors: the trend changed after 2015 (change in slope 95% interval 3.3 to 7.4 pp a year). The same result with the bend moved to 2013. |
 | 2 | **The extra milk went into butter and cheese.** From 2014 to 2025, butter output rose about 76% and cheese about 52%. Liquid milk sales hardly changed (+0.8%), so drinking milk fell from 8.5% to 5.5% of intake. | CSO AKM02, AKM03 |
 | 3 | **Irish supply is very seasonal.** In 2016–2025, May intake was about 6.5 times January intake. Plants sized for the peak month would use about 62% of their capacity in an average month, against about 98% in Canada. | Average monthly profiles, CSO vs Statistics Canada |
 | 4 | **Milk is getting richer.** Fat content rose from about 3.5% (1980) to about 4.3% (2025), and protein from about 3.2% to about 3.6%. Both are lowest in spring and highest in autumn. | Yearly values weighted by intake |
-| 5 | **Holt-Winters was the most reliable forecast; SARIMA the least.** Holt-Winters had the lowest average error in both tests. SARIMA was the best model in 4 of 6 backtest years but had the highest average error, because of a few large misses (23.9% in 2019, 21.6% in 2024). | 12-month forecasts, retrained every December |
+| 5 | **Holt-Winters was the most reliable forecast, by a small margin; this SARIMA setup was the least.** Holt-Winters had the lowest average error in both tests, 0.6 and 1.3 points below the seasonal naive baseline. SARIMA was the best model in 4 of 6 backtest years but had the highest average error, because of a few large misses (23.9% in 2019, 21.6% in 2024). | 12-month forecasts, retrained every December |
 
 ## Forecasting: how the models were tested
 Every December each model is trained on all data up to that month and forecasts the next 12 months. The forecast is then compared with what really happened. Accuracy is measured as MAPE (mean absolute percentage error, lower is better).
 
 - **Backtest:** forecast years 2017–2022, a period of steady growth.
 - **Hold-out test:** forecast years 2023, 2024, 2025 and January–August 2026, after growth stopped.
+
+No settings were tuned on the backtest, so the two tests differ only in the years they cover.
 
 | Model | Backtest MAPE (2017–2022) | Hold-out MAPE (2023–Aug 2026) |
 |---|---|---|
@@ -43,7 +45,7 @@ Every December each model is trained on all data up to that month and forecasts 
 
 ![Forecast error by year](figures/04_mape_by_year.png)
 
-**Why SARIMA misses:** SARIMA forecasts changes, not levels. When intake at the end of a year is much higher or lower than a year earlier, it carries that change into the whole next year. Its yearly bias moves with the late-year change (correlation 0.86 over 10 years).
+**Why this SARIMA setup misses:** SARIMA forecasts changes, not levels. When intake at the end of a year is much higher or lower than a year earlier, it carries that change into the whole next year. Its yearly bias moves with the late-year change (correlation 0.86 over 10 years). The model is fitted on log intake and every forecast starts from December, a month with very low intake, so this is a result for this setup, not for SARIMA in general.
 
 **Takeaway:** the seasonal pattern can be forecast well, the trend cannot. For capacity planning, I would use a model like Holt-Winters for the monthly profile and treat next year's level as a range of scenarios (for example, no growth or moderate growth), not one number. Model settings were fixed in advance and not tuned.
 
@@ -125,10 +127,12 @@ pip install -r requirements.txt
 - National totals only, no regional or co-op detail.
 - Skimmed milk powder has 40 unreported months, all in October to February, when output is low. They are kept as missing, not filled in.
 - The regression uses 41 yearly values with strong autocorrelation, so the intervals are approximate.
+- The regression uses one straight line after 2015. Growth was fast until 2022 and stopped afterwards, so the regression shows that the trend changed, and the growth rates by period show by how much.
 - The capacity figure is a simple indicator: it ignores storage and moving milk between plants.
 - Irish intake by processors and Canadian milk sold off farms are measured differently, so only the seasonal shapes are compared, not the levels.
 - The forecasts use only past intake. Weather, milk prices and herd numbers are not included, and the results come from 10 forecast years.
 - MAPE gives more weight to winter months, when intake is low.
+- Each forecasting model was run with one set of settings. Other settings, for example SARIMA without the log, could give different results.
 
 ## About this project
 An end-to-end portfolio project covering the full analytics workflow: public raw data, cleaning and quality checks in Python, a SQL Server database, statistical analysis, forecasting and a Power BI dashboard.

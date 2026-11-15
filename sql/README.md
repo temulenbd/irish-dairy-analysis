@@ -10,7 +10,7 @@ The scripts are numbered in the order they are run.
 |---|---|
 | `00_create_database.sql` | Creates the `dairy` database |
 | `01_create_tables.sql` | Creates the three tables: `dim_date`, `dim_measure` and `fact_monthly` |
-| `02_analysis_queries.sql` | Analysis queries: yearly milk intake, year-on-year change, monthly pattern, quota periods, Ireland vs Canada |
+| `02_analysis_queries.sql` | Analysis queries: yearly milk intake, year-on-year change, monthly pattern, quota periods, Ireland vs Canada, change in products since 2014, fat content weighted by intake |
 
 The tables are filled from Python in `notebooks/2_sql_database.ipynb`.
 
@@ -76,14 +76,14 @@ One row per measure (8 rows).
 
 | `measure_code` | `measure_name` | `unit` | `country` | `source` |
 |---|---|---|---|---|
-| `intake_ml` | Domestic milk intake by creameries and pasteurisers | million litres | Ireland | CSO AKM01 |
+| `intake_ml` | Domestic milk intake by milk processors and co-ops | million litres | Ireland | CSO AKM01 |
 | `fat_pct` | Fat content of milk intake | % | Ireland | CSO AKM01 |
 | `protein_pct` | Protein content of milk intake | % | Ireland | CSO AKM01 |
 | `liquid_sales_ml` | Milk sales for human consumption | million litres | Ireland | CSO AKM02 |
 | `butter_kt` | Butter production | thousand tonnes | Ireland | CSO AKM03 |
 | `cheese_kt` | Cheese production | thousand tonnes | Ireland | CSO AKM03 |
 | `smp_kt` | Skimmed milk powder production | thousand tonnes | Ireland | CSO AKM03 |
-| `canada_total_ml` | Total milk production | million litres | Canada | Statistics Canada 32-10-0113-01 |
+| `canada_total_ml` | Total milk sold off farms | million litres | Canada | Statistics Canada 32-10-0113-01 |
 
 `measure_code` is the primary key (`VARCHAR(30)`). The other columns are `VARCHAR` text.
 

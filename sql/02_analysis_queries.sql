@@ -157,3 +157,71 @@ FROM ireland AS i
 JOIN canada AS c
     ON i.[month] = c.[month]                -- match the same calendar month
 ORDER BY i.[month];
+
+/*
+    Query 6: Change in milk intake and products, 2014 to 2025
+
+    Compares the last full year under quotas (2014) with the latest
+    complete year (2025) for milk intake, liquid milk sales, butter
+    and cheese. Step 1 totals each measure for the two years and
+    keeps only complete years. Step 2 uses the yearly table twice,
+    once for each year, so each row shows both totals of one measure.
+    The units differ (million litres and thousand tonnes), so the
+    measures are compared by percent change.
+*/
+WITH yearly AS (                            -- step 1: yearly total per measure
+    SELECT
+        f.measure_code,
+        d.[year],
+        SUM(f.value) AS total
+    FROM fact_monthly AS f
+    JOIN dim_date AS d
+        ON f.date_key = d.date_key
+    WHERE f.measure_code IN ('intake_ml', 'liquid_sales_ml', 'butter_kt', 'cheese_kt')
+      AND d.[year] IN (2014, 2025)          -- IN: any value in the list
+    GROUP BY f.measure_code, d.[year]
+    HAVING COUNT(*) = 12                    -- complete years only
+)
+SELECT                                      -- step 2: both years side by side
+    m.measure_name,
+    m.unit,
+    s.total AS total_2014,
+    e.total AS total_2025,
+    CAST(100.0 * (e.total - s.total) / s.total AS DECIMAL(5, 1)) AS change_pct
+FROM yearly AS s                            -- s = start year
+JOIN yearly AS e                            -- e = end year
+    ON s.measure_code = e.measure_code      -- same measure in both
+JOIN dim_measure AS m
+    ON s.measure_code = m.measure_code      -- name and unit of the measure
+WHERE s.[year] = 2014
+  AND e.[year] = 2025
+ORDER BY change_pct DESC;
+
+/*
+    Query 7: Yearly fat content of milk, weighted by intake
+
+    A simple average of the 12 monthly fat values gives January the
+    same weight as May, although May has about six times as much
+    milk. The weighted average multiplies each month's fat content
+    by its intake, sums this over the year and divides by the
+    yearly intake.
+
+    fact_monthly is used twice: once for the intake rows (alias i)
+    and once for the fat rows (alias f), joined on the month. The
+    simple average is shown next to the weighted one for comparison.
+*/
+SELECT
+    d.[year],
+    CAST(SUM(i.value * f.value) / SUM(i.value) AS DECIMAL(4, 2)) AS fat_weighted_pct,
+    CAST(AVG(f.value) AS DECIMAL(4, 2))                          AS fat_simple_avg_pct,
+    COUNT(*)                                                     AS n_months
+FROM fact_monthly AS i                      -- i = intake rows
+JOIN fact_monthly AS f                      -- f = fat rows
+    ON i.date_key = f.date_key              -- same month
+JOIN dim_date AS d
+    ON i.date_key = d.date_key
+WHERE i.measure_code = 'intake_ml'
+  AND f.measure_code = 'fat_pct'
+GROUP BY d.[year]
+HAVING COUNT(*) = 12                        -- complete years only
+ORDER BY d.[year];
