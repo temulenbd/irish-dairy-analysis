@@ -50,15 +50,18 @@ No settings were tuned on the backtest, so the two tests differ only in the year
 **Takeaway:** the seasonal pattern can be forecast well, the trend cannot. For capacity planning, I would use a model like Holt-Winters for the monthly profile and treat next year's level as a range of scenarios (for example, no growth or moderate growth), not one number. Model settings were fixed in advance and not tuned.
 
 ## Power BI dashboard
-Five pages, built in Power BI Desktop (Import mode) from the SQL Server tables and the CSV file saved by notebook 4. The Seasonality page has a year slicer: move it to an earlier period to see how the Irish season has changed.
+Six pages, built in Power BI Desktop (Import mode) from the SQL Server tables and the CSV file saved by notebook 4. Every page has the same layout: charts on the left, key numbers in cards below, and a note on the right with the question, the findings and the source.
+
+Two pages are interactive. The Seasonality page has a year slicer: move it to an earlier period to see how the Irish season has changed. The Explore page lets the reader pick any of the eight measures and any range of years; the charts, their titles and the cards all follow the selection.
 
 | Page | Question | What it shows |
 |---|---|---|
-| 1 Overview | How did milk supply change when quotas ended? | Yearly intake since 1975 with the quota period marked; latest complete year, growth since 2014 |
-| 2 Seasonality | How seasonal is Irish supply? | Ireland vs Canada, each month as % of the average month, with a year slicer; capacity use |
+| 1 Overview | What happened to Irish milk supply after quotas ended? | Yearly intake since 1975 with the quota period marked; key numbers from the other pages |
+| 2 Seasonality | How seasonal is Irish milk supply? | Ireland vs Canada, each month as % of the average month, with a year slicer; peak month, lowest month and capacity use |
 | 3 Products | Where did the extra milk go? | Intake, liquid milk, butter and cheese as an index (2014 = 100) |
 | 4 Milk quality | Is milk getting richer? | Fat and protein content, weighted by intake |
 | 5 Forecast accuracy | How accurate is each forecast? | Average MAPE by model and test, and MAPE for every model and year |
+| 6 Explore the data | What does each measure look like? | Any measure by month and by calendar month, for the selected years |
 
 **Page 1: Overview**
 ![Overview page](figures/dashboard_1_overview.png)
@@ -75,7 +78,36 @@ Five pages, built in Power BI Desktop (Import mode) from the SQL Server tables a
 **Page 5: Forecast accuracy**
 ![Forecast accuracy page](figures/dashboard_5_forecast_accuracy.png)
 
+**Page 6: Explore the data**
+![Explore the data page](figures/dashboard_6_explore.png)
+
 The full dashboard as a PDF: [irish_dairy_dashboard.pdf](powerbi/irish_dairy_dashboard.pdf)
+
+Two of the DAX measures behind the pages:
+
+```dax
+-- Each month as a % of the average month (Seasonality page).
+-- REMOVEFILTERS clears the month on the chart axis, so the second
+-- average covers all twelve months of the selected years.
+Ireland, % of average month =
+VAR month_average =
+    CALCULATE(
+        AVERAGE(fact_monthly[value]),
+        dim_measure[measure_code] = "intake_ml"
+    )
+VAR all_months_average =
+    CALCULATE(
+        AVERAGE(fact_monthly[value]),
+        dim_measure[measure_code] = "intake_ml",
+        REMOVEFILTERS(dim_date[month], dim_date[month_name], dim_date[month_short])
+    )
+RETURN
+    DIVIDE(month_average, all_months_average) * 100
+
+-- Chart title that follows the measure slicer (Explore page).
+Monthly chart title =
+[Selected measure] & ", " & [Selected country] & ": by month (" & [Selected unit] & ")"
+```
 
 Design rules: complete years only for yearly totals; fat and protein always weighted by intake; the latest year is calculated, not typed; every number in a page note appears on that page. The forecast results reach Power BI through a CSV written by notebook 4, so the dashboard uses exactly the notebook's numbers.
 
@@ -90,7 +122,7 @@ Design rules: complete years only for yearly totals; fat and protein always weig
 │   ├── 3_statistical_analysis.ipynb trend, quota effect, products, seasonality, fat and protein
 │   └── 4_forecasting.ipynb          three models, backtest and hold-out test
 ├── sql/                         database scripts and analysis queries (see sql/README.md)
-├── powerbi/                     dashboard (.pbix) and PDF export
+├── powerbi/                     dashboard (.pbix), PDF export and colour theme
 ├── figures/                     charts from notebooks 3 and 4, dashboard page images
 └── requirements.txt
 ```

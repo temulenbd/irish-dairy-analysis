@@ -1,0 +1,14 @@
+{
+  "name": "Okabe-Ito",
+  "dataColors": [
+    "#0072B2",
+    "#D55E00",
+    "#E69F00",
+    "#009E73",
+    "#CC79A7",
+    "#000000"
+  ],
+  "background": "#FFFFFF",
+  "foreground": "#000000",
+  "tableAccent": "#0072B2"
+}
