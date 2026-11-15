@@ -8,9 +8,9 @@ The scripts are numbered in the order they are run.
 
 | File | What it does |
 |---|---|
-| `00_create_database.sql` | Creates the `dairy` database |
+| `00_create_database.sql` | Creates the `dairy` database, if it does not exist yet |
 | `01_create_tables.sql` | Creates the three tables: `dim_date`, `dim_measure` and `fact_monthly` |
-| `02_analysis_queries.sql` | Analysis queries: yearly milk intake, year-on-year change, monthly pattern, quota periods, Ireland vs Canada, change in products since 2014, fat content weighted by intake |
+| `02_analysis_queries.sql` | Seven analysis queries, listed below |
 
 The tables are filled from Python in `notebooks/2_sql_database.ipynb`.
 
@@ -112,6 +112,20 @@ Row counts are for the data downloaded in October 2026.
 **Quota period stored in `dim_date`.** The EU milk quota period of each month is stored once in `dim_date`. Queries can group by `quota_period` without repeating the date rules.
 
 **Loading in Python, analysis in SQL.** The SQL scripts create the empty tables. Notebook 2 loads the clean data with pandas and SQLAlchemy. The analysis queries are written in SQL.
+
+## Analysis queries (`02_analysis_queries.sql`)
+
+Each query answers part of a business question from the project README. Notebook 3 gets the same results in Python.
+
+| Query | What it shows | Business question |
+|---|---|---|
+| 1 | Total milk intake per year, complete years only | 1 Quota end |
+| 2 | Year-on-year change in milk intake | 1 Quota end |
+| 3 | Average milk intake by calendar month, 2016 to 2025 | 3 Seasonality |
+| 4 | Average yearly milk intake in each quota period | 1 Quota end |
+| 5 | Ireland vs Canada, average milk by calendar month | 3 Seasonality |
+| 6 | Change in milk intake, liquid milk sales, butter and cheese, 2014 to 2025 | 2 Where the extra milk went |
+| 7 | Yearly fat content of milk, weighted by intake, next to the simple average | 4 Milk composition |
 
 ## How to rebuild the database
 

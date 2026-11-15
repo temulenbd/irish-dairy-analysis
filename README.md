@@ -1,8 +1,8 @@
-# Irish Milk Supply: Growth, Seasonality and Forecasting
+# What happened to Irish milk supply after quotas ended?
 
 An analysis of Irish dairy statistics from January 1975 to August 2026 (CSO), with a comparison to Canada, a SQL Server database, a Power BI dashboard and a test of three forecasting models.
 
-**Tools:** Python (pandas, statsmodels, matplotlib) · SQL Server (T-SQL, star schema) · Power BI (DAX) · regression with Newey–West standard errors · time-series forecasting
+**Tools:** Python (pandas, statsmodels, matplotlib) · SQL Server (T-SQL, star schema) · Power BI (DAX) · Git · regression with Newey–West standard errors · time-series forecasting
 
 ![Power BI dashboard, Overview page](figures/dashboard_1_overview.png)
 
@@ -50,20 +50,32 @@ No settings were tuned on the backtest, so the two tests differ only in the year
 **Takeaway:** the seasonal pattern can be forecast well, the trend cannot. For capacity planning, I would use a model like Holt-Winters for the monthly profile and treat next year's level as a range of scenarios (for example, no growth or moderate growth), not one number. Model settings were fixed in advance and not tuned.
 
 ## Power BI dashboard
-Five pages, built on the SQL Server database. The full report is in [`powerbi/irish_dairy_dashboard.pdf`](powerbi/irish_dairy_dashboard.pdf) (the `.pbix` file is in the same folder).
+Five pages, built in Power BI Desktop (Import mode) from the SQL Server tables and the CSV file saved by notebook 4. The Seasonality page has a year slicer: move it to an earlier period to see how the Irish season has changed.
 
-| Page | What it shows |
-|---|---|
-| 1 Overview | Yearly intake since 1975 with the quota period marked; latest complete year, growth since 2014 |
-| 2 Seasonality | Ireland vs Canada, each month as % of the average month, with a year slicer; capacity use |
-| 3 Products | Intake, liquid milk, butter and cheese as an index (2014 = 100) |
-| 4 Milk quality | Fat and protein content, weighted by intake |
-| 5 Forecast accuracy | Average MAPE by model and test, and MAPE for every model and year |
+| Page | Question | What it shows |
+|---|---|---|
+| 1 Overview | How did milk supply change when quotas ended? | Yearly intake since 1975 with the quota period marked; latest complete year, growth since 2014 |
+| 2 Seasonality | How seasonal is Irish supply? | Ireland vs Canada, each month as % of the average month, with a year slicer; capacity use |
+| 3 Products | Where did the extra milk go? | Intake, liquid milk, butter and cheese as an index (2014 = 100) |
+| 4 Milk quality | Is milk getting richer? | Fat and protein content, weighted by intake |
+| 5 Forecast accuracy | How accurate is each forecast? | Average MAPE by model and test, and MAPE for every model and year |
 
+**Page 1: Overview**
+![Overview page](figures/dashboard_1_overview.png)
+
+**Page 2: Seasonality**
 ![Seasonality page](figures/dashboard_2_seasonality.png)
+
+**Page 3: Products**
 ![Products page](figures/dashboard_3_products.png)
+
+**Page 4: Milk quality**
 ![Milk quality page](figures/dashboard_4_milk_quality.png)
+
+**Page 5: Forecast accuracy**
 ![Forecast accuracy page](figures/dashboard_5_forecast_accuracy.png)
+
+The full dashboard as a PDF: [irish_dairy_dashboard.pdf](powerbi/irish_dairy_dashboard.pdf)
 
 Design rules: complete years only for yearly totals; fat and protein always weighted by intake; the latest year is calculated, not typed; every number in a page note appears on that page. The forecast results reach Power BI through a CSV written by notebook 4, so the dashboard uses exactly the notebook's numbers.
 
@@ -104,35 +116,44 @@ Design rules: complete years only for yearly totals; fat and protein always weig
 The SQL Server database `dairy` stores the same Irish and Canadian data in a star schema (`dim_date`, `dim_measure`, `fact_monthly`). See [`sql/README.md`](sql/README.md).
 
 ## How to run
-Requirements: Python 3.13, SQL Server (any edition, Windows Authentication), Power BI Desktop for the dashboard.
 
-```bash
-python -m venv .venv
-source .venv/Scripts/activate      # Windows Git Bash
-pip install -r requirements.txt
-```
-
-1. Run `sql/00_create_database.sql` and `sql/01_create_tables.sql` in SSMS.
-2. Run the notebooks in order:
-   - `1_data_preparation` writes the clean CSVs to `data/processed/`
-   - `2_sql_database` loads them into the `dairy` database
-   - `3_statistical_analysis` and `4_forecasting` read from the database; notebook 4 also writes `forecast_mape_by_year.csv`
-3. Open `powerbi/irish_dairy_dashboard.pbix` and refresh. You may need to point the data sources at your own SQL Server and the CSV path.
+1. **Clone the repo and set up Python** (Python 3.13, Git Bash on Windows):
+   ```bash
+   git clone https://github.com/temulenbd/irish-dairy-analysis.git
+   cd irish-dairy-analysis
+   python -m venv .venv
+   source .venv/Scripts/activate
+   pip install -r requirements.txt
+   ```
+2. **Create the database:** in SQL Server Management Studio, run `sql/00_create_database.sql`, then `sql/01_create_tables.sql`. This uses SQL Server on `localhost` with Windows Authentication and ODBC Driver 18. The schema is described in [`sql/README.md`](sql/README.md).
+3. **Prepare the data:** run `notebooks/1_data_preparation.ipynb`. It reads the four files in `data/raw/` and writes the clean CSV files to `data/processed/`.
+4. **Load the tables:** run `notebooks/2_sql_database.ipynb`.
+5. **Optional:** run `sql/02_analysis_queries.sql` in SSMS. Notebook 3 gets the same results in Python.
+6. **Run the analysis:** run `notebooks/3_statistical_analysis.ipynb`, then `notebooks/4_forecasting.ipynb`. They read from the database and write the figures. Notebook 4 also writes `forecast_mape_by_year.csv` for Power BI.
+7. **Open the dashboard:** open `powerbi/irish_dairy_dashboard.pbix`. If the file path or server name differs on your computer, update it in Transform data → Data source settings, then click Refresh.
 
 ## Data sources
-- Central Statistics Office (CSO), data.cso.ie, licence CC BY 4.0: [AKM01](https://data.cso.ie/table/AKM01) milk intake, fat and protein; [AKM02](https://data.cso.ie/table/AKM02) milk sales for human consumption; [AKM03](https://data.cso.ie/table/AKM03) production of dairy products
-- Statistics Canada, [Table 32-10-0113-01](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3210011301) milk production and utilization
+
+| Data | Source | Licence | Downloaded |
+|---|---|---|---|
+| [AKM01](https://data.cso.ie/table/AKM01): milk intake, fat and protein content | Central Statistics Office (CSO), data.cso.ie | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | October 2026 |
+| [AKM02](https://data.cso.ie/table/AKM02): milk sales for human consumption | CSO | CC BY 4.0 | October 2026 |
+| [AKM03](https://data.cso.ie/table/AKM03): production of dairy products | CSO | CC BY 4.0 | October 2026 |
+| [Table 32-10-0113-01](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3210011301): milk production and utilization | Statistics Canada | [Statistics Canada Open Licence](https://www.statcan.gc.ca/en/reference/licence) | October 2026 |
+
+Contains Irish Public Sector Data (Central Statistics Office) licensed under a Creative Commons Attribution 4.0 International (CC BY 4.0) licence. Adapted from Statistics Canada, Table 32-10-0113-01. This does not constitute an endorsement by Statistics Canada of this project.
 
 ## Limitations
-- National totals only, no regional or co-op detail.
-- Skimmed milk powder has 40 unreported months, all in October to February, when output is low. They are kept as missing, not filled in.
-- The regression uses 41 yearly values with strong autocorrelation, so the intervals are approximate.
-- The regression uses one straight line after 2015. Growth was fast until 2022 and stopped afterwards, so the regression shows that the trend changed, and the growth rates by period show by how much.
-- The capacity figure is a simple indicator: it ignores storage and moving milk between plants.
-- Irish intake by processors and Canadian milk sold off farms are measured differently, so only the seasonal shapes are compared, not the levels.
-- The forecasts use only past intake. Weather, milk prices and herd numbers are not included, and the results come from 10 forecast years.
-- MAPE gives more weight to winter months, when intake is low.
-- Each forecasting model was run with one set of settings. Other settings, for example SARIMA without the log, could give different results.
+- **National totals only.** There is no regional or co-op detail.
+- **Skimmed milk powder has 40 unreported months,** all in October to February, when output is low. They are kept as missing, not filled in.
+- **The regression intervals are approximate.** It uses 41 yearly values with strong autocorrelation.
+- **The regression uses one straight line after 2015.** Growth was fast until 2022 and stopped afterwards, so the regression shows that the trend changed, and the growth rates by period show by how much.
+- **The capacity figure is a simple indicator.** It ignores storage and moving milk between plants.
+- **Ireland and Canada are measured differently.** Irish intake by processors and Canadian milk sold off farms are not the same measure, so only the seasonal shapes are compared, not the levels.
+- **The forecasts use only past intake.** Weather, milk prices and herd numbers are not included, and the results come from 10 forecast years.
+- **MAPE gives more weight to winter months,** when intake is low.
+- **Each forecasting model was run with one set of settings.** Other settings, for example SARIMA without the log, could give different results.
+- **All numbers match the October 2026 download.** A newer download will give slightly different numbers.
 
 ## About this project
 An end-to-end portfolio project covering the full analytics workflow: public raw data, cleaning and quality checks in Python, a SQL Server database, statistical analysis, forecasting and a Power BI dashboard.

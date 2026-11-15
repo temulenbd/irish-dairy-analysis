@@ -11,6 +11,7 @@ USE dairy;
 
 /*
     Query 1: Total milk intake per year
+    Business question 1: how did milk supply respond when quotas ended?
 
     Sums the monthly milk intake for each year.
     Only complete years (12 months) are kept, so a part year
@@ -31,6 +32,7 @@ ORDER BY d.[year];
 
 /*
     Query 2: Year-on-year change in milk intake
+    Business question 1: how did milk supply respond when quotas ended?
 
     Compares each year's total with the year before, in million
     litres and in percent. The yearly totals come from the same
@@ -67,6 +69,7 @@ ORDER BY [year];
 
 /*
     Query 3: Average milk intake by calendar month, 2016 to 2025
+    Business question 3: how seasonal is supply?
 
     Shows the seasonal pattern of Irish milk supply.
     Uses the last ten complete years, so the averages reflect
@@ -88,6 +91,7 @@ ORDER BY d.[month];
 
 /*
     Query 4: Average yearly milk intake in each quota period
+    Business question 1: how did milk supply respond when quotas ended?
 
     Compares supply before quotas (to March 1984), under quotas
     (April 1984 to March 2015) and after quotas (from April 2015).
@@ -119,6 +123,7 @@ ORDER BY first_year;
 
 /*
     Query 5: Ireland vs Canada, average milk by calendar month
+    Business question 3: how seasonal is supply?
 
     Compares the seasonal pattern of the two countries over the
     same ten complete years (2016 to 2025). Each CTE is the same
@@ -160,6 +165,7 @@ ORDER BY i.[month];
 
 /*
     Query 6: Change in milk intake and products, 2014 to 2025
+    Business question 2: where did the extra milk go?
 
     Compares the last full year under quotas (2014) with the latest
     complete year (2025) for milk intake, liquid milk sales, butter
@@ -199,6 +205,7 @@ ORDER BY change_pct DESC;
 
 /*
     Query 7: Yearly fat content of milk, weighted by intake
+    Business question 4: is milk composition changing?
 
     A simple average of the 12 monthly fat values gives January the
     same weight as May, although May has about six times as much
