@@ -196,4 +196,4 @@ The methods were chosen to avoid common mistakes in time-series work:
 - Fat and protein are weighted by milk volume, not averaged month by month.
 - Missing seasonal values are kept as missing, not filled with averages.
 
-**Author:** Temuulen Bulgan
+**Author:** Temuulen Bulgan · [LinkedIn](https://www.linkedin.com/in/temulenbd/)
