@@ -114,7 +114,7 @@ Design rules: complete years only for yearly totals; fat and protein always weig
 ## Repository structure
 ```
 ├── data/
-│   ├── raw/                     CSO AKM01–03 (to Aug 2026) and StatCan 32-10-0113-01 (to Jun 2026), downloaded Oct 2026
+│   ├── raw/                     CSO AKM01–03 (to Aug 2026, downloaded Oct 2026) and StatCan 32-10-0113-01 (to Jun 2026, downloaded Aug 2026)
 │   └── processed/               clean tables written by notebooks 1 and 4
 ├── notebooks/
 │   ├── 1_data_preparation.ipynb     inspect and clean the raw files
@@ -171,7 +171,7 @@ The SQL Server database `dairy` stores the same Irish and Canadian data in a sta
 | [AKM01](https://data.cso.ie/table/AKM01): milk intake, fat and protein content | Central Statistics Office (CSO), data.cso.ie | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | October 2026 |
 | [AKM02](https://data.cso.ie/table/AKM02): milk sales for human consumption | CSO | CC BY 4.0 | October 2026 |
 | [AKM03](https://data.cso.ie/table/AKM03): production of dairy products | CSO | CC BY 4.0 | October 2026 |
-| [Table 32-10-0113-01](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3210011301): milk production and utilization | Statistics Canada | [Statistics Canada Open Licence](https://www.statcan.gc.ca/en/reference/licence) | October 2026 |
+| [Table 32-10-0113-01](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3210011301): milk production and utilization | Statistics Canada | [Statistics Canada Open Licence](https://www.statcan.gc.ca/en/reference/licence) | August 2026 |
 
 Contains Irish Public Sector Data (Central Statistics Office) licensed under a Creative Commons Attribution 4.0 International (CC BY 4.0) licence. Adapted from Statistics Canada, Table 32-10-0113-01. This does not constitute an endorsement by Statistics Canada of this project.
 
