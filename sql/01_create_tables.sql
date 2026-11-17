@@ -53,7 +53,7 @@ CREATE TABLE dim_measure (
 */
 CREATE TABLE fact_monthly (
     date_key      DATE            NOT NULL REFERENCES dim_date (date_key),        
-    measure_code  VARCHAR(30)     NOT NULL REFERENCES dim_measure (measure_code), -- which measure
+    measure_code  VARCHAR(30)     NOT NULL REFERENCES dim_measure (measure_code),
     value         DECIMAL(12, 3)  NOT NULL,                                       
     PRIMARY KEY (date_key, measure_code)                                          -- one value per month and measure
 );

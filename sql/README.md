@@ -99,7 +99,7 @@ One row per month and measure (4,538 rows).
 
 The primary key is (`date_key`, `measure_code`), so each month has at most one value per measure.
 
-Row counts are for the data downloaded in October 2026.
+Row counts are for the data as downloaded: CSO tables in October 2026, Statistics Canada in August 2026.
 
 ## Design decisions
 

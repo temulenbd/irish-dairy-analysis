@@ -23,8 +23,8 @@ SELECT
     COUNT(*)     AS n_months            -- months with a value
 FROM fact_monthly AS f
 JOIN dim_date AS d
-    ON f.date_key = d.date_key          -- link each value to its month
-WHERE f.measure_code = 'intake_ml'      -- milk intake only
+    ON f.date_key = d.date_key
+WHERE f.measure_code = 'intake_ml'
 GROUP BY d.[year]
 HAVING COUNT(*) = 12                    -- complete years only
 ORDER BY d.[year];
@@ -160,7 +160,7 @@ SELECT
     CAST(c.avg_ml AS DECIMAL(7, 1)) AS canada_avg_ml      -- million litres
 FROM ireland AS i
 JOIN canada AS c
-    ON i.[month] = c.[month]                -- match the same calendar month
+    ON i.[month] = c.[month]
 ORDER BY i.[month];
 
 /*
@@ -184,7 +184,7 @@ WITH yearly AS (                            -- step 1: yearly total per measure
     JOIN dim_date AS d
         ON f.date_key = d.date_key
     WHERE f.measure_code IN ('intake_ml', 'liquid_sales_ml', 'butter_kt', 'cheese_kt')
-      AND d.[year] IN (2014, 2025)          -- IN: any value in the list
+      AND d.[year] IN (2014, 2025)
     GROUP BY f.measure_code, d.[year]
     HAVING COUNT(*) = 12                    -- complete years only
 )
@@ -196,9 +196,9 @@ SELECT                                      -- step 2: both years side by side
     CAST(100.0 * (e.total - s.total) / s.total AS DECIMAL(5, 1)) AS change_pct
 FROM yearly AS s                            -- s = start year
 JOIN yearly AS e                            -- e = end year
-    ON s.measure_code = e.measure_code      -- same measure in both
+    ON s.measure_code = e.measure_code
 JOIN dim_measure AS m
-    ON s.measure_code = m.measure_code      -- name and unit of the measure
+    ON s.measure_code = m.measure_code
 WHERE s.[year] = 2014
   AND e.[year] = 2025
 ORDER BY change_pct DESC;
@@ -224,7 +224,7 @@ SELECT
     COUNT(*)                                                     AS n_months
 FROM fact_monthly AS i                      -- i = intake rows
 JOIN fact_monthly AS f                      -- f = fat rows
-    ON i.date_key = f.date_key              -- same month
+    ON i.date_key = f.date_key
 JOIN dim_date AS d
     ON i.date_key = d.date_key
 WHERE i.measure_code = 'intake_ml'
