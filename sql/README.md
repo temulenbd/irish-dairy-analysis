@@ -1,10 +1,10 @@
 # SQL: the `dairy` database
 
-This folder holds the SQL scripts for the `dairy` database in SQL Server. The database stores the clean monthly dairy data from notebook 1, so it can be queried with SQL and connected to Power BI.
+This folder has the SQL scripts for the `dairy` database in SQL Server. The database keeps the clean monthly dairy data from notebook 1, so I can query it with SQL and connect it to Power BI.
 
 ## Files
 
-The scripts are numbered in the order they are run.
+The scripts are numbered in the order I run them.
 
 | File | What it does |
 |---|---|
@@ -12,9 +12,9 @@ The scripts are numbered in the order they are run.
 | `01_create_tables.sql` | Creates the three tables: `dim_date`, `dim_measure` and `fact_monthly` |
 | `02_analysis_queries.sql` | Seven analysis queries, listed below |
 
-The tables are filled from Python in `notebooks/2_sql_database.ipynb`.
+I fill the tables from Python in `notebooks/2_sql_database.ipynb`.
 
-The scripts are written in T-SQL (Microsoft SQL Server) and were run in SQL Server Management Studio (SSMS).
+I wrote the scripts in T-SQL (Microsoft SQL Server) and ran them in SQL Server Management Studio (SSMS).
 
 ## Database design
 
@@ -49,7 +49,7 @@ erDiagram
     }
 ```
 
-- `fact_monthly` holds the numbers: one row per month and measure.
+- `fact_monthly` has the numbers: one row for each month and measure.
 - `dim_date` describes each month: year, month, quarter and quota period.
 - `dim_measure` describes each measure: name, unit, country and source table.
 
@@ -57,7 +57,7 @@ erDiagram
 
 ### `dim_date`
 
-One row per month, January 1975 to August 2026 (620 rows).
+One row for each month, January 1975 to August 2026 (620 rows).
 
 | Column | Type | Description |
 |---|---|---|
@@ -72,7 +72,7 @@ One row per month, January 1975 to August 2026 (620 rows).
 
 ### `dim_measure`
 
-One row per measure (8 rows).
+One row for each measure (8 rows).
 
 | `measure_code` | `measure_name` | `unit` | `country` | `source` |
 |---|---|---|---|---|
@@ -89,7 +89,7 @@ One row per measure (8 rows).
 
 ### `fact_monthly`
 
-One row per month and measure (4,538 rows).
+One row for each month and measure (4,538 rows).
 
 | Column | Type | Description |
 |---|---|---|
@@ -97,21 +97,21 @@ One row per month and measure (4,538 rows).
 | `measure_code` | `VARCHAR(30)` | Measure. Foreign key to `dim_measure` |
 | `value` | `DECIMAL(12, 3)` | The value, in the unit given in `dim_measure`. `NOT NULL` |
 
-The primary key is (`date_key`, `measure_code`), so each month has at most one value per measure.
+The primary key is (`date_key`, `measure_code`), so each month has at most one value for each measure.
 
-Row counts are for the data as downloaded: CSO tables in October 2026, Statistics Canada in August 2026.
+Row counts are for the data as downloaded: CSO tables in September 2026, Statistics Canada in August 2026.
 
 ## Design decisions
 
 **Star schema.** The numbers are in one table and the descriptions in two small tables. Queries need only simple joins, and Power BI works best with this layout.
 
-**Long format for the fact table.** `fact_monthly` has one row per month and measure, not one column per measure. A new measure is added as new rows, so the table design does not change.
+**Long format for the fact table.** `fact_monthly` has one row for each month and measure, not one column for each measure. A new measure only adds new rows, so the table design does not change.
 
-**Missing values have no row.** A row in `fact_monthly` is a value that was published. `value` is `NOT NULL`, and missing values are not filled in or estimated. Six Irish measures start in January 1980, cheese production ends in December 2025, and skimmed milk powder has 40 single missing months between 2005 and 2025. `dim_date` has every month, so gaps can be found by joining it to `fact_monthly`.
+**Missing values have no row.** A row in `fact_monthly` is a value that was published. `value` is `NOT NULL`, and I do not fill in or estimate missing values. Six Irish measures start in January 1980, cheese production ends in December 2025, and skimmed milk powder has 40 single missing months between 2005 and 2025. `dim_date` has every month, so gaps can be found by joining it to `fact_monthly`.
 
-**Quota period stored in `dim_date`.** The EU milk quota period of each month is stored once in `dim_date`. Queries can group by `quota_period` without repeating the date rules.
+**Quota period stored in `dim_date`.** I save the EU milk quota period of each month once in `dim_date`. Queries can group by `quota_period` without repeating the date rules.
 
-**Loading in Python, analysis in SQL.** The SQL scripts create the empty tables. Notebook 2 loads the clean data with pandas and SQLAlchemy. The analysis queries are written in SQL.
+**Loading in Python, analysis in SQL.** The SQL scripts create the empty tables. Notebook 2 loads the clean data with pandas and SQLAlchemy. I write the analysis queries in SQL.
 
 ## Analysis queries (`02_analysis_queries.sql`)
 
@@ -138,4 +138,4 @@ Requirements: SQL Server (the Developer edition is free), ODBC Driver 18 for SQL
 
 The notebook connects to a local SQL Server (`localhost`) with Windows Authentication. For another server, change the connection string in notebook 2.
 
-Running `01_create_tables.sql` again drops and recreates the tables, so all rows are deleted. Notebook 2 can be re-run at any time, because it clears the tables before loading.
+Running `01_create_tables.sql` again drops and recreates the tables, so all rows are deleted. You can re-run notebook 2 at any time, because it clears the tables before loading.

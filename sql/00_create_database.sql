@@ -3,7 +3,7 @@
     Project: Irish Milk Supply: Growth, Seasonality and Forecasting
     Author:  Temuulen Bulgan
 
-    Creates the empty database for the project.
+    In this file I create the empty database for the project.
     Run this file first, then 01_create_tables.sql.
 */
 

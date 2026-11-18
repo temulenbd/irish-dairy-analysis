@@ -4,7 +4,7 @@
 
     Each query answers one question about Irish milk supply.
     Run 00_create_database.sql, 01_create_tables.sql and
-    notebook 2 first, so the tables hold data.
+    notebook 2 first, so the tables have data in them.
 */
 
 USE dairy;
@@ -13,9 +13,9 @@ USE dairy;
     Query 1: Total milk intake per year
     Business question 1: how did milk supply respond when quotas ended?
 
-    Sums the monthly milk intake for each year.
-    Only complete years (12 months) are kept, so a part year
-    such as 2026 does not look like a fall in supply.
+    I add up the monthly milk intake for each year.
+    I keep only complete years (12 months), so a part year
+    such as 2026 does not look like a drop in supply.
 */
 SELECT
     d.[year],
@@ -34,12 +34,12 @@ ORDER BY d.[year];
     Query 2: Year-on-year change in milk intake
     Business question 1: how did milk supply respond when quotas ended?
 
-    Compares each year's total with the year before, in million
-    litres and in percent. The yearly totals come from the same
-    logic as Query 1, written as a CTE (WITH ... AS) so they can
-    be reused. Only complete years are used.
+    I compare each year's total with the year before, in million
+    litres and in percent. The yearly totals use the same logic
+    as Query 1. I write them as a CTE (WITH ... AS), so I can use
+    them again in the next step. I use only complete years.
 */
-WITH yearly AS (                            -- step 1: total per complete year
+WITH yearly AS (                            -- step 1: total for each complete year
     SELECT
         d.[year],
         SUM(f.value) AS total_intake_ml
@@ -72,7 +72,7 @@ ORDER BY [year];
     Business question 3: how seasonal is supply?
 
     Shows the seasonal pattern of Irish milk supply.
-    Uses the last ten complete years, so the averages reflect
+    I use the last ten complete years, so the averages show
     current supply levels and every month has the same number
     of years.
 */
@@ -93,13 +93,14 @@ ORDER BY d.[month];
     Query 4: Average yearly milk intake in each quota period
     Business question 1: how did milk supply respond when quotas ended?
 
-    Compares supply before quotas (to March 1984), under quotas
+    I compare supply before quotas (to March 1984), under quotas
     (April 1984 to March 2015) and after quotas (from April 2015).
     Step 1 totals each complete year inside a period. 1984 and 2015
     are split between two periods, so they are not complete in
-    either and are left out. Step 2 averages the yearly totals.
+    either period, and I leave them out. Step 2 averages the
+    yearly totals.
 */
-WITH yearly AS (                            -- step 1: total per complete year in each period
+WITH yearly AS (                            -- step 1: total for each complete year in each period
     SELECT
         d.quota_period,
         d.[year],
@@ -111,7 +112,7 @@ WITH yearly AS (                            -- step 1: total per complete year i
     GROUP BY d.quota_period, d.[year]
     HAVING COUNT(*) = 12
 )
-SELECT                                      -- step 2: average per period
+SELECT                                      -- step 2: average for each period
     quota_period,
     COUNT(*)                                     AS n_years,
     MIN([year])                                  AS first_year,
@@ -125,12 +126,12 @@ ORDER BY first_year;
     Query 5: Ireland vs Canada, average milk by calendar month
     Business question 3: how seasonal is supply?
 
-    Compares the seasonal pattern of the two countries over the
+    I compare the seasonal pattern of the two countries over the
     same ten complete years (2016 to 2025). Each CTE is the same
-    as Query 3 for one country. The two are joined on the month
+    as Query 3 for one country. I join the two on the month
     number, so each row shows one month for both countries.
 */
-WITH ireland AS (                           -- Ireland: average per calendar month
+WITH ireland AS (                           -- Ireland: average for each calendar month
     SELECT
         d.[month],
         d.month_name,
@@ -142,7 +143,7 @@ WITH ireland AS (                           -- Ireland: average per calendar mon
       AND d.[year] BETWEEN 2016 AND 2025
     GROUP BY d.[month], d.month_name
 ),
-canada AS (                                 -- Canada: average per calendar month
+canada AS (                                 -- Canada: average for each calendar month
     SELECT
         d.[month],
         AVG(f.value) AS avg_ml
@@ -167,15 +168,15 @@ ORDER BY i.[month];
     Query 6: Change in milk intake and products, 2014 to 2025
     Business question 2: where did the extra milk go?
 
-    Compares the last full year under quotas (2014) with the latest
+    I compare the last full year under quotas (2014) with the latest
     complete year (2025) for milk intake, liquid milk sales, butter
     and cheese. Step 1 totals each measure for the two years and
     keeps only complete years. Step 2 uses the yearly table twice,
     once for each year, so each row shows both totals of one measure.
-    The units differ (million litres and thousand tonnes), so the
-    measures are compared by percent change.
+    The units are different (million litres and thousand tonnes),
+    so I compare the measures by percent change.
 */
-WITH yearly AS (                            -- step 1: yearly total per measure
+WITH yearly AS (                            -- step 1: yearly total for each measure
     SELECT
         f.measure_code,
         d.[year],
@@ -208,14 +209,14 @@ ORDER BY change_pct DESC;
     Business question 4: is milk composition changing?
 
     A simple average of the 12 monthly fat values gives January the
-    same weight as May, although May has about six times as much
-    milk. The weighted average multiplies each month's fat content
-    by its intake, sums this over the year and divides by the
-    yearly intake.
+    same weight as May, although May has much more milk. The
+    weighted average multiplies each month's fat content by its
+    intake, adds this up over the year and divides by the yearly
+    intake.
 
-    fact_monthly is used twice: once for the intake rows (alias i)
-    and once for the fat rows (alias f), joined on the month. The
-    simple average is shown next to the weighted one for comparison.
+    I use fact_monthly twice: once for the intake rows (alias i)
+    and once for the fat rows (alias f), joined on the month. I show
+    the simple average next to the weighted one for comparison.
 */
 SELECT
     d.[year],
